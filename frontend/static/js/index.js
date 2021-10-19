@@ -1,3 +1,7 @@
+import home from "./views/home.js";
+import blog from "./views/blog.js";
+import err404 from "./views/err404.js";
+
 const navigateTo = (url) => {
   history.pushState(null, null, url);
   router();
@@ -5,9 +9,9 @@ const navigateTo = (url) => {
 
 const router = async () => {
   const routes = [
-    { path: "/", view: () => console.log("Viewing home") },
-    { path: "/blog", view: () => console.log("Viewing blog") },
-    { path: "/404", view: () => console.log("Viewing 404") },
+    { path: "/", view: home },
+    { path: "/blog", view: blog },
+    { path: "/404", view: err404 },
   ];
 
   // Test each route for potential match
@@ -28,7 +32,9 @@ const router = async () => {
     };
   }
 
-  console.log(match.route.view());
+  const view = new match.route.view();
+
+  document.querySelector(".content").innerHTML = await view.getHTML();
 };
 
 window.addEventListener("popstate", router);
