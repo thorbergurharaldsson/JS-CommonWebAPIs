@@ -1,6 +1,23 @@
 import home from "./views/home.js";
 import blog from "./views/blog.js";
+import blogView from "./views/blogView.js";
 import err404 from "./views/err404.js";
+
+const pathToRegex = (path) =>
+  new RegExp("^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$");
+
+const getParams = (match) => {
+  const values = match.result.slice(1);
+  const keys = Array.from(match.route.path.matchAll(/:(\w+)/g)).map(
+    (result) => result[1]
+  );
+
+  return Object.fromEntries(
+    keys.map((key, i) => {
+      return [key, values[i]];
+    })
+  );
+};
 
 const navigateTo = (url) => {
   history.pushState(null, null, url);
@@ -11,28 +28,33 @@ const router = async () => {
   const routes = [
     { path: "/", view: home },
     { path: "/blog", view: blog },
+    { path: "/blog/:id", view: blogView },
     { path: "/404", view: err404 },
   ];
 
   // Test each route for potential match
-  const potentialMatchs = routes.map((route) => {
+  const potentialMatches = routes.map((route) => {
+    console.log(location.pathname.match(route.path));
     return {
       route: route,
-      isMatch: location.pathname === route.path,
+      result: location.pathname.match(pathToRegex(route.path)),
     };
   });
 
-  let match = potentialMatchs.find((potentialMatch) => potentialMatch.isMatch);
+  let match = potentialMatches.find(
+    (potentialMatch) => potentialMatch.result !== null
+  );
 
-  // TODO: 404 error page if page is not found
+  //console.log(match);
+
   if (!match) {
     match = {
-      route: routes[2],
-      isMatch: true,
+      route: routes[3],
+      result: [location.pathname],
     };
   }
 
-  const view = new match.route.view();
+  const view = new match.route.view(getParams(match));
 
   document.querySelector(".content").innerHTML = await view.getHTML();
 };

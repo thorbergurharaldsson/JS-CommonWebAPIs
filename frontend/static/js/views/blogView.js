@@ -3,14 +3,14 @@ import abstractView from "./abstractView.js";
 export default class extends abstractView {
   constructor(params) {
     super(params);
-    this.setTitle("404!");
+    this.setTitle("Viewing post");
   }
 
   async getHTML() {
+    console.log(this.params.id);
     return `
-        <h1> 404 error, page not found </h1>
-        <a href="/" class="navLink" data-link>Go back to homepage</a>
-        
+        <h1> Blog post</h1>
+        <p> This is a blog post </p>
     `;
   }
 }
